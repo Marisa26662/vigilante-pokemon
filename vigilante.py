@@ -34,7 +34,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 # Canales públicos de Telegram a vigilar (lo que va detrás de t.me/).
 CANALES = [
     "pokestock_es",
-    "stockTCG",
+    "stockTCGpokemon",
 ]
 
 # Productos que te interesan. Para cada uno:
