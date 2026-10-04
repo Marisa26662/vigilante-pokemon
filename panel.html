@@ -50,43 +50,32 @@
   @media (prefers-color-scheme: dark) { #error { color: #FF8A8A; } }
 
   /* ---------- panel ---------- */
-  #panel { display: none; max-width: 1080px; margin: 0 auto; padding: 32px 20px 56px; }
+  #panel { display: none; max-width: 820px; margin: 0 auto; padding: 32px 20px 56px; }
   .cabecera { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
-  .titular { font: 800 clamp(2rem, 6vw, 3.4rem)/1.02 var(--display); letter-spacing: -0.03em; margin: 0; max-width: 16ch; }
-  .titular.hay { color: var(--verde); }
-  .meta { color: var(--suave); margin: 10px 0 0; }
+  .titular { font: 800 clamp(2rem, 6vw, 3.2rem)/1.04 var(--display); letter-spacing: -0.03em; margin: 0; max-width: 18ch; }
+  .meta { color: var(--suave); margin: 10px 0 0; max-width: 60ch; }
   .salir { font: 600 .9rem var(--texto); background: none; border: 1px solid var(--linea); color: var(--suave);
     padding: 8px 12px; border-radius: 8px; cursor: pointer; }
-  .tiendas { display: flex; gap: 10px; flex-wrap: wrap; margin: 22px 0 0; padding: 0; list-style: none; }
-  .tiendas li { background: var(--hoja); border: 1px solid var(--linea); border-radius: 999px; padding: 6px 14px; font-size: .92rem; }
-  .tiendas .mal { border-color: #C23B3B; }
-
-  .filtros { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 32px 0 20px; }
+  .canales { display: flex; gap: 10px; flex-wrap: wrap; margin: 22px 0 0; padding: 0; list-style: none; }
+  .canales li { background: var(--hoja); border: 1px solid var(--linea); border-radius: 999px; padding: 6px 14px; font-size: .92rem; }
+  .canales .mal { border-color: #C23B3B; }
+  .filtros { display: flex; gap: 8px; flex-wrap: wrap; margin: 30px 0 18px; }
   .filtro { font: 600 .95rem var(--texto); padding: 8px 14px; border-radius: 999px; cursor: pointer;
     border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
   .filtro[aria-pressed=true] { background: var(--tinta); color: var(--fondo); border-color: var(--tinta); }
-  .solo { margin-left: auto; display: flex; gap: 8px; align-items: center; color: var(--suave); font-size: .95rem; }
-
-  .tienda h2 { font: 700 1.35rem/1.2 var(--display); margin: 28px 0 12px; }
-  .rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
-  .ficha { background: var(--hoja); border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px 16px;
-    display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
-  .ficha.disponible { border: 2px solid var(--verde); }
-  .ficha.reserva { border: 2px solid var(--ambar); }
-  .estado { align-self: flex-start; font-weight: 700; font-size: .85rem; padding: 3px 10px; border-radius: 999px;
-    background: var(--fondo); color: var(--gris); }
-  .disponible .estado { background: var(--verde-bg); color: var(--verde); }
-  .reserva .estado { background: var(--ambar-bg); color: var(--ambar); }
-  .ficha .nombre { font-weight: 600; line-height: 1.35; text-decoration: none; }
-  .ficha .nombre:hover { text-decoration: underline; }
-  .estrella { color: #C99A00; }
-  .datos { color: var(--suave); font-size: .9rem; margin: auto 0 0; }
-  .externo { color: var(--ambar); font-weight: 600; }
-  .comprar { display: inline-block; margin-top: 4px; font-weight: 700; text-decoration: none; background: var(--verde);
-    color: #fff; padding: 8px 12px; border-radius: 8px; text-align: center; }
-  .reserva .comprar { background: var(--ambar); color: #18212F; }
+  .avisos { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .aviso { background: var(--hoja); border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px 16px; }
+  .aviso.prio { border: 2px solid var(--amarillo); }
+  .cabeza { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: .9rem; color: var(--suave); }
+  .etiqueta { font-weight: 700; color: var(--tinta); background: var(--fondo); border-radius: 999px; padding: 2px 10px; }
+  .prio .etiqueta.p { background: var(--amarillo); color: #18212F; }
+  .cabeza a { color: var(--suave); }
+  .texto { margin: 10px 0 0; white-space: pre-line; overflow-wrap: anywhere; }
+  .previa { margin: 8px 0 0; color: var(--suave); font-size: .92rem; border-left: 3px solid var(--linea); padding-left: 10px; }
+  .enlaces { margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .enlaces a { font-weight: 600; font-size: .9rem; text-decoration: none; border: 1px solid var(--linea); border-radius: 8px;
+    padding: 6px 10px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .vacio { color: var(--suave); padding: 20px 0; }
-  @media (max-width: 560px) { .solo { margin-left: 0; width: 100%; } }
 </style>
 </head>
 <body>
@@ -94,7 +83,7 @@
 <main id="bloqueo">
   <form class="candado" id="formulario" autocomplete="on">
     <h1>Vigilante Pokémon</h1>
-    <p>Este panel es privado. Escribe la contraseña para ver las tiendas y los productos.</p>
+    <p>Este panel es privado. Escribe la contraseña para ver los avisos.</p>
     <input type="text" name="username" value="vigilante" autocomplete="username" hidden>
     <label for="clave">Contraseña</label>
     <input id="clave" type="password" autocomplete="current-password" required>
@@ -112,18 +101,16 @@
     </div>
     <button class="salir" id="salir" type="button">Cerrar sesión</button>
   </div>
-  <ul class="tiendas" id="tiendas"></ul>
-  <div class="filtros" role="group" aria-label="Filtrar por tienda" id="filtros"></div>
-  <div id="listado"></div>
+  <ul class="canales" id="canales"></ul>
+  <div class="filtros" role="group" aria-label="Filtrar por producto" id="filtros"></div>
+  <ul class="avisos" id="avisos"></ul>
 </div>
 
 <script>
 const DATOS = "__DATOS__";
 const ITERACIONES = __ITERACIONES__;
 const LLAVE_LOCAL = "vigilante-pokemon-clave";
-const ETIQUETAS = { disponible: "Disponible", reserva: "Reserva abierta", agotado: "Agotado", desconocido: "Sin comprobar" };
-const ORDEN = { disponible: 0, reserva: 1, desconocido: 2, agotado: 3 };
-let datos = null, filtroTienda = "Todas", soloDisponibles = false;
+let datos = null, filtro = "Todos";
 
 async function descifrar(b64, clave) {
   const raw = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
@@ -134,8 +121,7 @@ async function descifrar(b64, clave) {
   const claro = await crypto.subtle.decrypt({ name: "AES-GCM", iv: raw.slice(16, 28) }, llave, raw.slice(28));
   return JSON.parse(new TextDecoder().decode(claro));
 }
-
-function guardarClave(clave) { try { localStorage.setItem(LLAVE_LOCAL, clave); } catch (e) {} }
+function guardarClave(c) { try { localStorage.setItem(LLAVE_LOCAL, c); } catch (e) {} }
 function leerClave() { try { return localStorage.getItem(LLAVE_LOCAL); } catch (e) { return null; } }
 function borrarClave() { try { localStorage.removeItem(LLAVE_LOCAL); } catch (e) {} }
 
@@ -162,95 +148,69 @@ function el(tag, clase, texto) {
   if (texto != null) n.textContent = texto;
   return n;
 }
-
-function esPrioritario(titulo) {
-  const t = titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  return (datos.prioridad || []).some(p => t.includes(p.toLowerCase()));
+function cuando(iso, largo) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleString("es-ES", largo
+    ? { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }
+    : { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
-
-function nombreTienda(clave) { return clave === "carrefour" ? "Carrefour" : clave === "toysrus" ? "Toys R Us" : clave; }
+function hace(iso) {
+  const min = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (min < 60) return `hace ${Math.max(min, 1)} min`;
+  const h = Math.round(min / 60);
+  if (h < 48) return `hace ${h} h`;
+  return `hace ${Math.round(h / 24)} días`;
+}
+function dominio(url) { try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return url; } }
 
 function pintar() {
-  const prods = datos.productos;
-  const abiertos = prods.filter(p => p.estado === "disponible" || p.estado === "reserva");
+  const avisos = datos.avisos;
   const titular = document.getElementById("titular");
-  titular.textContent = abiertos.length === 0 ? "Nada disponible ahora mismo"
-    : abiertos.length === 1 ? "1 producto disponible ahora" : `${abiertos.length} productos disponibles ahora`;
-  titular.classList.toggle("hay", abiertos.length > 0);
-
-  const fecha = new Date(datos.actualizado);
-  const cuando = fecha.toLocaleString("es-ES", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+  titular.textContent = avisos.length ? `Último aviso ${hace(avisos[0].fecha)}` : "Todavía no hay avisos";
   document.getElementById("meta").textContent =
-    `Vigilando ${prods.length} productos. Panel actualizado el ${cuando}; se refresca cuando algo cambia o cada hora.`;
+    `Vigilando ${Object.keys(datos.canales).length} canales para: ${datos.productos.join(", ")}. ` +
+    `Panel actualizado el ${cuando(datos.actualizado, true)}.`;
 
-  const tiendas = document.getElementById("tiendas");
-  tiendas.replaceChildren(...Object.entries(datos.sitios).map(([nombre, st]) => {
-    const li = el("li", st === "ok" ? "" : "mal", `${nombre}: ${st === "ok" ? "funcionando" : "sin acceso, la web bloquea al vigilante"}`);
-    return li;
-  }));
+  document.getElementById("canales").replaceChildren(...Object.entries(datos.canales).map(([c, st]) =>
+    el("li", st === "ok" ? "" : "mal", `@${c}: ${st === "ok" ? "leyendo bien" : "no se puede leer"}`)));
 
-  const nombres = ["Todas", ...new Set(prods.map(p => nombreTienda(p.tienda)))];
   const filtros = document.getElementById("filtros");
-  filtros.replaceChildren(...nombres.map(n => {
-    const b = el("button", "filtro", n);
+  filtros.replaceChildren(...["Todos", ...datos.productos].map(n => {
+    const cuenta = n === "Todos" ? avisos.length : avisos.filter(a => a.productos.includes(n)).length;
+    const b = el("button", "filtro", `${n} (${cuenta})`);
     b.type = "button";
-    b.setAttribute("aria-pressed", String(n === filtroTienda));
-    b.onclick = () => { filtroTienda = n; pintar(); };
+    b.setAttribute("aria-pressed", String(n === filtro));
+    b.onclick = () => { filtro = n; pintar(); };
     return b;
   }));
-  const solo = el("label", "solo");
-  const check = document.createElement("input");
-  check.type = "checkbox"; check.checked = soloDisponibles;
-  check.onchange = () => { soloDisponibles = check.checked; pintar(); };
-  solo.append(check, " Solo disponibles");
-  filtros.append(solo);
 
-  const listado = document.getElementById("listado");
-  listado.replaceChildren();
-  const grupos = {};
-  prods
-    .filter(p => filtroTienda === "Todas" || nombreTienda(p.tienda) === filtroTienda)
-    .filter(p => !soloDisponibles || p.estado === "disponible" || p.estado === "reserva")
-    .sort((a, b) => (ORDEN[a.estado] ?? 9) - (ORDEN[b.estado] ?? 9) || a.titulo.localeCompare(b.titulo))
-    .forEach(p => (grupos[nombreTienda(p.tienda)] ||= []).push(p));
-
-  if (!Object.keys(grupos).length) {
-    listado.append(el("p", "vacio", soloDisponibles ? "Ahora mismo no hay nada disponible con este filtro. Desmarca «Solo disponibles» para ver todo lo que se vigila." : "No hay productos en esta tienda todavía."));
+  const lista = document.getElementById("avisos");
+  const visibles = avisos.filter(a => filtro === "Todos" || a.productos.includes(filtro));
+  if (!visibles.length) {
+    lista.replaceChildren(el("li", "vacio", filtro === "Todos"
+      ? "Aún no ha salido ningún mensaje sobre tus productos. En cuanto aparezca uno, lo verás aquí y te llegará por email."
+      : `No hay avisos de ${filtro} todavía. Pulsa «Todos» para ver el resto.`));
     return;
   }
-  for (const [tienda, lista] of Object.entries(grupos)) {
-    const sec = el("section", "tienda");
-    sec.append(el("h2", null, `${tienda} (${lista.length})`));
-    const rejilla = el("div", "rejilla");
-    for (const p of lista) {
-      const f = el("article", `ficha ${p.estado}`);
-      f.append(el("span", "estado", ETIQUETAS[p.estado] || p.estado));
-      const a = el("a", "nombre");
-      a.href = p.url; a.target = "_blank"; a.rel = "noopener";
-      if (esPrioritario(p.titulo)) a.append(el("span", "estrella", "★ "));
-      a.append(p.titulo);
-      f.append(a);
-      const d = el("p", "datos");
-      const partes = [];
-      if (p.precio) partes.push(p.precio);
-      if (p.visto_desde) partes.push(`vigilado desde ${p.visto_desde.split("-").reverse().join("/")}`);
-      d.append(partes.join(". "));
-      if (p.vendedor) {
-        d.append(el("br"));
-        const externo = !/^(carrefour|toys)/i.test(p.vendedor);
-        d.append(el("span", externo ? "externo" : "", `Vendido por ${p.vendedor}${externo ? " (vendedor externo)" : ""}`));
-      }
-      f.append(d);
-      if (p.estado === "disponible" || p.estado === "reserva") {
-        const c = el("a", "comprar", p.estado === "reserva" ? "Ir a reservar" : "Ir a comprar");
-        c.href = p.url; c.target = "_blank"; c.rel = "noopener";
-        f.append(c);
-      }
-      rejilla.append(f);
+  lista.replaceChildren(...visibles.map(a => {
+    const prio = a.productos.some(p => (datos.prioridad || []).includes(p));
+    const li = el("li", prio ? "aviso prio" : "aviso");
+    const cab = el("div", "cabeza");
+    a.productos.forEach(p => cab.append(el("span", (datos.prioridad || []).includes(p) ? "etiqueta p" : "etiqueta", p)));
+    const origen = el("a", null, `@${a.canal}`);
+    origen.href = a.url; origen.target = "_blank"; origen.rel = "noopener";
+    cab.append(origen, el("span", null, cuando(a.fecha)));
+    li.append(cab);
+    if (a.texto) li.append(el("p", "texto", a.texto.length > 600 ? a.texto.slice(0, 600) + "…" : a.texto));
+    if (a.previa) li.append(el("p", "previa", a.previa));
+    if (a.enlaces && a.enlaces.length) {
+      const en = el("div", "enlaces");
+      a.enlaces.forEach(u => { const x = el("a", null, `Abrir ${dominio(u)}`); x.href = u; x.target = "_blank"; x.rel = "noopener"; en.append(x); });
+      li.append(en);
     }
-    sec.append(rejilla);
-    listado.append(sec);
-  }
+    return li;
+  }));
 }
 
 document.getElementById("formulario").addEventListener("submit", e => {

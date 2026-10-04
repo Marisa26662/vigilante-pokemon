@@ -2,11 +2,11 @@ name: Vigilante Pokémon
 
 on:
   schedule:
-    - cron: "*/10 * * * *"   # cada 10 minutos (GitHub a veces se retrasa un poco)
+    - cron: "*/5 * * * *"   # cada 5 minutos (GitHub a veces se retrasa un poco)
   workflow_dispatch:
     inputs:
       prueba:
-        description: "Enviarme un email de prueba con el resumen completo"
+        description: "Enviarme un email de prueba con el resumen"
         type: boolean
         default: true
 
@@ -20,7 +20,7 @@ concurrency:
 jobs:
   vigilar:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
 
@@ -32,16 +32,14 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
-      - name: Caché del navegador
-        uses: actions/cache@v4
+      - name: Recuperar estado
+        uses: actions/cache/restore@v4
         with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          path: .estado
+          key: estado-${{ github.run_id }}
+          restore-keys: estado-
 
-      - name: Instalar navegador
-        run: python -m playwright install --with-deps chromium
-
-      - name: Vigilar tiendas
+      - name: Leer canales
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
@@ -51,8 +49,19 @@ jobs:
         run: python vigilante.py
 
       - name: Guardar estado
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .estado
+          key: estado-${{ github.run_id }}
+
+      - name: Publicar panel
         run: |
           git config user.name "vigilante-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A .
-          git diff --staged --quiet || (git commit -m "Actualizar estado" && git push)
+          git add -A docs
+          if ! git diff --staged --quiet; then
+            git commit -m "Actualizar panel"
+            git pull --rebase
+            git push
+          fi
