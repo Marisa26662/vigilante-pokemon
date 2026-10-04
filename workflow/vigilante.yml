@@ -1,0 +1,58 @@
+name: Vigilante Pokémon
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # cada 10 minutos (GitHub a veces se retrasa un poco)
+  workflow_dispatch:
+    inputs:
+      prueba:
+        description: "Enviarme un email de prueba con el resumen completo"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vigilante
+  cancel-in-progress: false
+
+jobs:
+  vigilar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Caché del navegador
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+
+      - name: Instalar navegador
+        run: python -m playwright install --with-deps chromium
+
+      - name: Vigilar tiendas
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          PANEL_PASSWORD: ${{ secrets.PANEL_PASSWORD }}
+          PRUEBA: ${{ github.event.inputs.prueba || 'false' }}
+        run: python vigilante.py
+
+      - name: Guardar estado
+        run: |
+          git config user.name "vigilante-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A .
+          git diff --staged --quiet || (git commit -m "Actualizar estado" && git push)

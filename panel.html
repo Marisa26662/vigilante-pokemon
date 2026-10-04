@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Vigilante Pokémon</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fondo: #E6EBF2; --hoja: #FFFFFF; --tinta: #18212F; --suave: #586477; --linea: #CFD7E3;
+    --verde: #12793A; --verde-bg: #E2F4E8; --ambar: #9A6200; --ambar-bg: #FBF0D6;
+    --gris: #7B8596; --amarillo: #FFCB05; --foco: #2F5BD3;
+    --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --texto: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fondo: #131923; --hoja: #1C2431; --tinta: #E9EEF6; --suave: #9AA6B9; --linea: #2B3546;
+      --verde: #4CC97C; --verde-bg: #173324; --ambar: #F0B542; --ambar-bg: #3A2D12;
+      --gris: #7D889A; --foco: #8EA9FF;
+    }
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { background: var(--fondo); }
+  body { margin: 0; background: var(--fondo); color: var(--tinta); font: 16px/1.5 var(--texto); }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; border-radius: 4px; }
+
+  /* ---------- bloqueo ---------- */
+  #bloqueo { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+  .candado { width: 100%; max-width: 360px; background: var(--hoja); border: 1px solid var(--linea);
+    border-radius: 16px; padding: 28px 24px; }
+  .candado h1 { font: 800 1.9rem/1.1 var(--display); margin: 0 0 6px; letter-spacing: -0.02em; }
+  .candado p { margin: 0 0 20px; color: var(--suave); }
+  .candado label { display: block; font-weight: 600; margin-bottom: 6px; }
+  .candado input[type=password] { width: 100%; font: inherit; padding: 12px 14px; border-radius: 10px;
+    border: 1px solid var(--linea); background: var(--fondo); color: var(--tinta); }
+  .recordar { display: flex; gap: 8px; align-items: center; margin: 14px 0 18px; color: var(--suave); font-size: .95rem; }
+  .boton { width: 100%; font: 700 1rem var(--texto); padding: 12px; border: 0; border-radius: 10px;
+    background: var(--amarillo); color: #18212F; cursor: pointer; }
+  .boton[disabled] { opacity: .6; cursor: wait; }
+  #error { color: #C23B3B; min-height: 1.5em; margin: 12px 0 0; font-size: .95rem; }
+  @media (prefers-color-scheme: dark) { #error { color: #FF8A8A; } }
+
+  /* ---------- panel ---------- */
+  #panel { display: none; max-width: 1080px; margin: 0 auto; padding: 32px 20px 56px; }
+  .cabecera { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+  .titular { font: 800 clamp(2rem, 6vw, 3.4rem)/1.02 var(--display); letter-spacing: -0.03em; margin: 0; max-width: 16ch; }
+  .titular.hay { color: var(--verde); }
+  .meta { color: var(--suave); margin: 10px 0 0; }
+  .salir { font: 600 .9rem var(--texto); background: none; border: 1px solid var(--linea); color: var(--suave);
+    padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+  .tiendas { display: flex; gap: 10px; flex-wrap: wrap; margin: 22px 0 0; padding: 0; list-style: none; }
+  .tiendas li { background: var(--hoja); border: 1px solid var(--linea); border-radius: 999px; padding: 6px 14px; font-size: .92rem; }
+  .tiendas .mal { border-color: #C23B3B; }
+
+  .filtros { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 32px 0 20px; }
+  .filtro { font: 600 .95rem var(--texto); padding: 8px 14px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
+  .filtro[aria-pressed=true] { background: var(--tinta); color: var(--fondo); border-color: var(--tinta); }
+  .solo { margin-left: auto; display: flex; gap: 8px; align-items: center; color: var(--suave); font-size: .95rem; }
+
+  .tienda h2 { font: 700 1.35rem/1.2 var(--display); margin: 28px 0 12px; }
+  .rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .ficha { background: var(--hoja); border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px 16px;
+    display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
+  .ficha.disponible { border: 2px solid var(--verde); }
+  .ficha.reserva { border: 2px solid var(--ambar); }
+  .estado { align-self: flex-start; font-weight: 700; font-size: .85rem; padding: 3px 10px; border-radius: 999px;
+    background: var(--fondo); color: var(--gris); }
+  .disponible .estado { background: var(--verde-bg); color: var(--verde); }
+  .reserva .estado { background: var(--ambar-bg); color: var(--ambar); }
+  .ficha .nombre { font-weight: 600; line-height: 1.35; text-decoration: none; }
+  .ficha .nombre:hover { text-decoration: underline; }
+  .estrella { color: #C99A00; }
+  .datos { color: var(--suave); font-size: .9rem; margin: auto 0 0; }
+  .externo { color: var(--ambar); font-weight: 600; }
+  .comprar { display: inline-block; margin-top: 4px; font-weight: 700; text-decoration: none; background: var(--verde);
+    color: #fff; padding: 8px 12px; border-radius: 8px; text-align: center; }
+  .reserva .comprar { background: var(--ambar); color: #18212F; }
+  .vacio { color: var(--suave); padding: 20px 0; }
+  @media (max-width: 560px) { .solo { margin-left: 0; width: 100%; } }
+</style>
+</head>
+<body>
+
+<main id="bloqueo">
+  <form class="candado" id="formulario" autocomplete="on">
+    <h1>Vigilante Pokémon</h1>
+    <p>Este panel es privado. Escribe la contraseña para ver las tiendas y los productos.</p>
+    <input type="text" name="username" value="vigilante" autocomplete="username" hidden>
+    <label for="clave">Contraseña</label>
+    <input id="clave" type="password" autocomplete="current-password" required>
+    <label class="recordar"><input type="checkbox" id="recordar"> Recordar en este dispositivo</label>
+    <button class="boton" id="entrar" type="submit">Abrir panel</button>
+    <p id="error" role="alert"></p>
+  </form>
+</main>
+
+<div id="panel">
+  <div class="cabecera">
+    <div>
+      <h1 class="titular" id="titular"></h1>
+      <p class="meta" id="meta"></p>
+    </div>
+    <button class="salir" id="salir" type="button">Cerrar sesión</button>
+  </div>
+  <ul class="tiendas" id="tiendas"></ul>
+  <div class="filtros" role="group" aria-label="Filtrar por tienda" id="filtros"></div>
+  <div id="listado"></div>
+</div>
+
+<script>
+const DATOS = "__DATOS__";
+const ITERACIONES = __ITERACIONES__;
+const LLAVE_LOCAL = "vigilante-pokemon-clave";
+const ETIQUETAS = { disponible: "Disponible", reserva: "Reserva abierta", agotado: "Agotado", desconocido: "Sin comprobar" };
+const ORDEN = { disponible: 0, reserva: 1, desconocido: 2, agotado: 3 };
+let datos = null, filtroTienda = "Todas", soloDisponibles = false;
+
+async function descifrar(b64, clave) {
+  const raw = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(clave), "PBKDF2", false, ["deriveKey"]);
+  const llave = await crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt: raw.slice(0, 16), iterations: ITERACIONES, hash: "SHA-256" },
+    base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  const claro = await crypto.subtle.decrypt({ name: "AES-GCM", iv: raw.slice(16, 28) }, llave, raw.slice(28));
+  return JSON.parse(new TextDecoder().decode(claro));
+}
+
+function guardarClave(clave) { try { localStorage.setItem(LLAVE_LOCAL, clave); } catch (e) {} }
+function leerClave() { try { return localStorage.getItem(LLAVE_LOCAL); } catch (e) { return null; } }
+function borrarClave() { try { localStorage.removeItem(LLAVE_LOCAL); } catch (e) {} }
+
+async function abrir(clave, recordar) {
+  const boton = document.getElementById("entrar"), error = document.getElementById("error");
+  boton.disabled = true; boton.textContent = "Abriendo…"; error.textContent = "";
+  try {
+    datos = await descifrar(DATOS, clave);
+    if (recordar) guardarClave(clave);
+    document.getElementById("bloqueo").style.display = "none";
+    document.getElementById("panel").style.display = "block";
+    pintar();
+  } catch (e) {
+    borrarClave();
+    error.textContent = "Contraseña incorrecta. Usa la misma que guardaste en el secreto PANEL_PASSWORD.";
+  } finally {
+    boton.disabled = false; boton.textContent = "Abrir panel";
+  }
+}
+
+function el(tag, clase, texto) {
+  const n = document.createElement(tag);
+  if (clase) n.className = clase;
+  if (texto != null) n.textContent = texto;
+  return n;
+}
+
+function esPrioritario(titulo) {
+  const t = titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  return (datos.prioridad || []).some(p => t.includes(p.toLowerCase()));
+}
+
+function nombreTienda(clave) { return clave === "carrefour" ? "Carrefour" : clave === "toysrus" ? "Toys R Us" : clave; }
+
+function pintar() {
+  const prods = datos.productos;
+  const abiertos = prods.filter(p => p.estado === "disponible" || p.estado === "reserva");
+  const titular = document.getElementById("titular");
+  titular.textContent = abiertos.length === 0 ? "Nada disponible ahora mismo"
+    : abiertos.length === 1 ? "1 producto disponible ahora" : `${abiertos.length} productos disponibles ahora`;
+  titular.classList.toggle("hay", abiertos.length > 0);
+
+  const fecha = new Date(datos.actualizado);
+  const cuando = fecha.toLocaleString("es-ES", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+  document.getElementById("meta").textContent =
+    `Vigilando ${prods.length} productos. Panel actualizado el ${cuando}; se refresca cuando algo cambia o cada hora.`;
+
+  const tiendas = document.getElementById("tiendas");
+  tiendas.replaceChildren(...Object.entries(datos.sitios).map(([nombre, st]) => {
+    const li = el("li", st === "ok" ? "" : "mal", `${nombre}: ${st === "ok" ? "funcionando" : "sin acceso, la web bloquea al vigilante"}`);
+    return li;
+  }));
+
+  const nombres = ["Todas", ...new Set(prods.map(p => nombreTienda(p.tienda)))];
+  const filtros = document.getElementById("filtros");
+  filtros.replaceChildren(...nombres.map(n => {
+    const b = el("button", "filtro", n);
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(n === filtroTienda));
+    b.onclick = () => { filtroTienda = n; pintar(); };
+    return b;
+  }));
+  const solo = el("label", "solo");
+  const check = document.createElement("input");
+  check.type = "checkbox"; check.checked = soloDisponibles;
+  check.onchange = () => { soloDisponibles = check.checked; pintar(); };
+  solo.append(check, " Solo disponibles");
+  filtros.append(solo);
+
+  const listado = document.getElementById("listado");
+  listado.replaceChildren();
+  const grupos = {};
+  prods
+    .filter(p => filtroTienda === "Todas" || nombreTienda(p.tienda) === filtroTienda)
+    .filter(p => !soloDisponibles || p.estado === "disponible" || p.estado === "reserva")
+    .sort((a, b) => (ORDEN[a.estado] ?? 9) - (ORDEN[b.estado] ?? 9) || a.titulo.localeCompare(b.titulo))
+    .forEach(p => (grupos[nombreTienda(p.tienda)] ||= []).push(p));
+
+  if (!Object.keys(grupos).length) {
+    listado.append(el("p", "vacio", soloDisponibles ? "Ahora mismo no hay nada disponible con este filtro. Desmarca «Solo disponibles» para ver todo lo que se vigila." : "No hay productos en esta tienda todavía."));
+    return;
+  }
+  for (const [tienda, lista] of Object.entries(grupos)) {
+    const sec = el("section", "tienda");
+    sec.append(el("h2", null, `${tienda} (${lista.length})`));
+    const rejilla = el("div", "rejilla");
+    for (const p of lista) {
+      const f = el("article", `ficha ${p.estado}`);
+      f.append(el("span", "estado", ETIQUETAS[p.estado] || p.estado));
+      const a = el("a", "nombre");
+      a.href = p.url; a.target = "_blank"; a.rel = "noopener";
+      if (esPrioritario(p.titulo)) a.append(el("span", "estrella", "★ "));
+      a.append(p.titulo);
+      f.append(a);
+      const d = el("p", "datos");
+      const partes = [];
+      if (p.precio) partes.push(p.precio);
+      if (p.visto_desde) partes.push(`vigilado desde ${p.visto_desde.split("-").reverse().join("/")}`);
+      d.append(partes.join(". "));
+      if (p.vendedor) {
+        d.append(el("br"));
+        const externo = !/^(carrefour|toys)/i.test(p.vendedor);
+        d.append(el("span", externo ? "externo" : "", `Vendido por ${p.vendedor}${externo ? " (vendedor externo)" : ""}`));
+      }
+      f.append(d);
+      if (p.estado === "disponible" || p.estado === "reserva") {
+        const c = el("a", "comprar", p.estado === "reserva" ? "Ir a reservar" : "Ir a comprar");
+        c.href = p.url; c.target = "_blank"; c.rel = "noopener";
+        f.append(c);
+      }
+      rejilla.append(f);
+    }
+    sec.append(rejilla);
+    listado.append(sec);
+  }
+}
+
+document.getElementById("formulario").addEventListener("submit", e => {
+  e.preventDefault();
+  abrir(document.getElementById("clave").value, document.getElementById("recordar").checked);
+});
+document.getElementById("salir").onclick = () => {
+  borrarClave(); datos = null;
+  document.getElementById("panel").style.display = "none";
+  document.getElementById("bloqueo").style.display = "grid";
+  document.getElementById("clave").value = "";
+};
+const guardada = leerClave();
+if (guardada) { document.getElementById("recordar").checked = true; abrir(guardada, true); }
+</script>
+</body>
+</html>
