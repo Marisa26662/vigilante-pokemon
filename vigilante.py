@@ -37,32 +37,29 @@ CANALES = [
     "stockTCGpokemon",
 ]
 
-# Productos que te interesan. Para cada uno:
-#   patron:       palabras que lo identifican (sin tildes y en minúsculas)
-#   requiere_30:  True si el mensaje además tiene que mencionar el 30 aniversario
-#                 (útil para palabras que también salen en otros productos, como "Mew")
-PRODUCTOS = {
-    "Ultra Premium": {"patron": r"ultra[\s-]?premium|\bupc\b", "requiere_30": False},
-    "Ditto":         {"patron": r"\bditto\b", "requiere_30": False},
-    "Álbum":         {"patron": r"\balbum\b|\bbinder\b|\barchivador\b", "requiere_30": True},
-    "Mew":           {"patron": r"\bmew\b", "requiere_30": True},
-    "Mewtwo":        {"patron": r"\bmewtwo\b", "requiere_30": True},
-    "Invitaciones Amazon": {"patron": r"invitaci", "requiere_30": True},
-}
+# Hay dos tipos de aviso. Un mensaje puede cumplir uno, otro o los dos.
+#
+#  A) PREVENTAS del 30 aniversario en inglés, en cualquier tienda.
+#     Si la preventa no indica idioma, va a un bloque aparte ("sin idioma").
+#  B) ULTRA PREMIUM, en cualquier tienda (Amazon incluida) y cualquier idioma.
+AVISO_PREVENTAS = "Preventa 30 aniversario inglés"
+AVISO_PREVENTAS_SIN_IDIOMA = "Preventa 30 aniversario sin idioma"
+AVISO_ULTRA = "Ultra Premium"
 
-# Cómo se reconoce que un mensaje habla del 30 aniversario.
+# Palabras que se buscan (sin tildes y en minúsculas).
 PATRON_30 = r"30\s*(th|o|°)?\s*(aniversario|anniversary|celebration|celebracion)|\b30th\b|pokemon\s?30\b"
+PATRON_INGLES = r"\bingles[a]?\b|\benglish\b|\beng\b|\(en\)"
+PATRON_OTRO_IDIOMA = (r"\bespanol\b|\bcastellano\b|\besp\b|\(es\)|\bjapones[a]?\b|\bjapanese\b|\bjp\b|\bjap\b|"
+                      r"\bchino\b|\bchinese\b|\bcoreano\b|\bkorean\b|\bfrances[a]?\b|\bfrench\b|"
+                      r"\baleman[a]?\b|\bgerman\b|\bitaliano\b|\bitalian\b|\bportugues[a]?\b")
+PATRON_PREVENTA = r"\bpre\s?venta|\bpre\s?order|\breserva(r|ble|s)?\b|\breservad[oa]s?\b"
+PATRON_ULTRA = r"ultra\s?premium|\bupc\b"
 
-# Avisar también de cualquier mensaje que hable del 30 aniversario, aunque no
-# mencione ninguno de los productos de arriba. Esos avisos llevan esta etiqueta.
-AVISAR_TODO_30 = True
-ETIQUETA_GENERAL = "Otros 30 aniversario"
+# Si quieres que la Ultra Premium avise SOLO en inglés, cambia False por True.
+ULTRA_SOLO_INGLES = False
 
-# Si un mensaje contiene alguna de estas palabras, se ignora. Ej: ["vendo", "cardmarket"]
+# Si un mensaje contiene alguna de estas palabras (sin tildes), se ignora.
 EXCLUIR = []
-
-# Productos que se marcan con ⭐ en el asunto del email.
-PRIORIDAD = ["Ultra Premium"]
 
 # Cuántos avisos guardar para el panel.
 MAX_AVISOS = 100
@@ -87,7 +84,11 @@ CABECERAS = {
 }
 
 RE_30 = re.compile(PATRON_30)
-RE_PRODUCTOS = {nombre: (re.compile(cfg["patron"]), cfg["requiere_30"]) for nombre, cfg in PRODUCTOS.items()}
+RE_INGLES = re.compile(PATRON_INGLES)
+RE_PREVENTA = re.compile(PATRON_PREVENTA)
+RE_OTRO_IDIOMA = re.compile(PATRON_OTRO_IDIOMA)
+RE_ULTRA = re.compile(PATRON_ULTRA)
+RE_ECI = re.compile(r"corte ingles")  # se quita antes de buscar "inglés" para no confundirlo
 
 
 # ---------------------------- utilidades ----------------------------
@@ -102,14 +103,20 @@ def normalizar(texto):
 def clasificar(texto):
     """Devuelve la lista de productos que menciona el mensaje (vacía si no interesa)."""
     t = normalizar(texto)
-    if any(normalizar(x) in t for x in EXCLUIR):
+    if any(re.search(rf"\b{re.escape(normalizar(x))}\b", t) for x in EXCLUIR):
         return []
-    habla_30 = bool(RE_30.search(t))
-    encontrados = [nombre for nombre, (patron, req30) in RE_PRODUCTOS.items()
-                   if patron.search(t) and (habla_30 or not req30)]
-    if not encontrados and habla_30 and AVISAR_TODO_30:
-        encontrados = [ETIQUETA_GENERAL]
-    return encontrados
+    sin_eci = RE_ECI.sub(" ", t)
+    en_ingles = bool(RE_INGLES.search(sin_eci))
+    otro_idioma = bool(RE_OTRO_IDIOMA.search(sin_eci))
+    avisos = []
+    if RE_30.search(t) and RE_PREVENTA.search(t):
+        if en_ingles:
+            avisos.append(AVISO_PREVENTAS)
+        elif not otro_idioma:
+            avisos.append(AVISO_PREVENTAS_SIN_IDIOMA)
+    if RE_ULTRA.search(t) and (en_ingles or not ULTRA_SOLO_INGLES):
+        avisos.append(AVISO_ULTRA)
+    return avisos
 
 
 # ---------------------------- cifrado y estado ----------------------------
@@ -144,6 +151,12 @@ def cargar_estado():
     datos = datos or {}
     datos.setdefault("canales", {})
     datos.setdefault("avisos", [])
+    # Si has cambiado el filtro, se borran los avisos antiguos del panel
+    # (los canales recuerdan por dónde iban, así que no se reenvía nada viejo).
+    firma = hashlib.sha256(_serializar([PATRON_30, PATRON_INGLES, PATRON_OTRO_IDIOMA, PATRON_PREVENTA, PATRON_ULTRA, ULTRA_SOLO_INGLES, EXCLUIR]).encode()).hexdigest()
+    if datos.get("filtro") != firma:
+        datos["avisos"] = []
+        datos["filtro"] = firma
     return datos
 
 
@@ -254,8 +267,8 @@ def generar_panel(estado, forzar=False):
     datos = {
         "avisos": estado["avisos"],
         "canales": {c: v.get("estado", "ok") for c, v in estado["canales"].items()},
-        "productos": list(PRODUCTOS) + ([ETIQUETA_GENERAL] if AVISAR_TODO_30 else []),
-        "prioridad": PRIORIDAD,
+        "productos": [AVISO_ULTRA, AVISO_PREVENTAS, AVISO_PREVENTAS_SIN_IDIOMA],
+        "prioridad": [AVISO_ULTRA],
     }
     huella = hashlib.sha256(_serializar(datos).encode("utf-8")).hexdigest()
     ahora = datetime.now(ZONA)
@@ -330,15 +343,16 @@ def main():
         cuerpo = ("<p>El vigilante de Telegram está en marcha. A partir de ahora te escribiré "
                   "solo cuando aparezca un mensaje nuevo sobre tus productos.</p>"
                   f"<p><b>Canales:</b></p><ul>{canales_html}</ul>"
-                  f"<p><b>Productos que vigilo:</b> {escape(', '.join(PRODUCTOS))}"
-                  f"{' y cualquier mensaje sobre el 30 aniversario' if AVISAR_TODO_30 else ''}</p>"
+                  "<p><b>Vigilo:</b> preventas del 30 aniversario en inglés o sin idioma indicado "
+                  "(cualquier tienda) y la "
+                  f"Ultra Premium en cualquier tienda{' (solo en inglés)' if ULTRA_SOLO_INGLES else ''}.</p>"
                   "<p><b>Últimos mensajes que habrían pasado el filtro</b> (para que veas cómo filtra):</p>"
                   + ("".join(html_aviso(a) for a in recientes) or "<p>Ninguno en los mensajes recientes.</p>"))
         asunto = ("🧪 Prueba del vigilante de Telegram" if PRUEBA else "✅ Vigilante de Telegram activado")
         enviar_email(asunto, cuerpo)
     elif nuevos_avisos:
         productos = list(dict.fromkeys(p for a in nuevos_avisos for p in a["productos"]))
-        estrella = "⭐ " if any(p in PRIORIDAD for p in productos) else ""
+        estrella = "⭐ " if AVISO_ULTRA in productos else ""
         primero = nuevos_avisos[0]
         resumen = re.sub(r"https?://\S+", "", primero["texto"]).strip() or primero["previa"]
         resumen = re.sub(r"\s+", " ", resumen)[:60]
