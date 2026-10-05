@@ -295,6 +295,9 @@ def main():
         sys.exit(1)
 
     estado = cargar_estado()
+    # Olvidar los canales que ya no están en la lista de CANALES
+    for viejo in [c for c in estado["canales"] if c not in CANALES]:
+        del estado["canales"][viejo]
     primera_vez = not estado["canales"]
     nuevos_avisos, cambios_canal = [], []
     ya_vistos = {a["id"] for a in estado["avisos"]}
