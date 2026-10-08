@@ -5,18 +5,19 @@ aparece algo que me interesa. También actualiza un panel privado con contraseñ
 
 ## Qué me notifica
 
-Hay tres tipos de aviso. Un mismo mensaje puede activar más de uno.
+Hay cinco tipos de aviso. Un mismo mensaje puede activar más de uno.
 
 | Aviso | Cuándo salta |
 |---|---|
 | **⭐ Ultra Premium** | Cualquier mensaje que hable de la Ultra Premium, en cualquier tienda (Amazon incluida) y en cualquier idioma. |
+| **Stock 30 aniversario inglés** | El mensaje habla del 30 aniversario y dice que es en inglés, aunque no sea preventa (reposiciones, stock disponible). Cualquier tienda. |
+| **Stock 30 aniversario sin idioma** | Igual que la anterior, pero el mensaje no indica idioma (puede acabar siendo en español). |
 | **Preventa 30 aniversario inglés** | El mensaje habla del 30 aniversario, es una preventa/reserva/pre-order y dice que es en inglés ("inglés", "English", "ENG" o "(EN)"). Cualquier tienda o web. |
 | **Preventa 30 aniversario sin idioma** | Igual que la anterior, pero el mensaje no indica ningún idioma. |
 
 **No me avisa de:**
 
-- Preventas del 30 aniversario que indiquen otro idioma (español, japonés, chino, coreano, francés, alemán, italiano o portugués).
-- Reposiciones o stock que no sean preventa (salvo si es la Ultra Premium).
+- Stock o preventas del 30 aniversario que indiquen otro idioma (español, japonés, chino, coreano, francés, alemán, italiano o portugués).
 - Productos que no sean del 30 aniversario (salvo la Ultra Premium).
 
 Nota: "El Corte Inglés" no cuenta como "inglés"; el script quita el nombre de la tienda antes de comprobar el idioma.

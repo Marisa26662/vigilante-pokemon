@@ -41,9 +41,13 @@ CANALES = [
 #
 #  A) PREVENTAS del 30 aniversario en inglés, en cualquier tienda.
 #     Si la preventa no indica idioma, va a un bloque aparte ("sin idioma").
+#  C) STOCK del 30 aniversario en inglés (a la venta ya, sin ser preventa).
+#     Si no indica idioma, va a un bloque aparte ("sin idioma").
 #  B) ULTRA PREMIUM, en cualquier tienda (Amazon incluida) y cualquier idioma.
 AVISO_PREVENTAS = "Preventa 30 aniversario inglés"
 AVISO_PREVENTAS_SIN_IDIOMA = "Preventa 30 aniversario sin idioma"
+AVISO_STOCK_INGLES = "Stock 30 aniversario inglés"
+AVISO_STOCK_SIN_IDIOMA = "Stock 30 aniversario sin idioma"
 AVISO_ULTRA = "Ultra Premium"
 
 # Palabras que se buscan (sin tildes y en minúsculas).
@@ -114,6 +118,11 @@ def clasificar(texto):
             avisos.append(AVISO_PREVENTAS)
         elif not otro_idioma:
             avisos.append(AVISO_PREVENTAS_SIN_IDIOMA)
+    elif RE_30.search(t):
+        if en_ingles:
+            avisos.append(AVISO_STOCK_INGLES)
+        elif not otro_idioma:
+            avisos.append(AVISO_STOCK_SIN_IDIOMA)
     if RE_ULTRA.search(t) and (en_ingles or not ULTRA_SOLO_INGLES):
         avisos.append(AVISO_ULTRA)
     return avisos
@@ -267,7 +276,7 @@ def generar_panel(estado, forzar=False):
     datos = {
         "avisos": estado["avisos"],
         "canales": {c: v.get("estado", "ok") for c, v in estado["canales"].items()},
-        "productos": [AVISO_ULTRA, AVISO_PREVENTAS, AVISO_PREVENTAS_SIN_IDIOMA],
+        "productos": [AVISO_ULTRA, AVISO_STOCK_INGLES, AVISO_STOCK_SIN_IDIOMA, AVISO_PREVENTAS, AVISO_PREVENTAS_SIN_IDIOMA],
         "prioridad": [AVISO_ULTRA],
     }
     huella = hashlib.sha256(_serializar(datos).encode("utf-8")).hexdigest()
@@ -346,8 +355,8 @@ def main():
         cuerpo = ("<p>El vigilante de Telegram está en marcha. A partir de ahora te escribiré "
                   "solo cuando aparezca un mensaje nuevo sobre tus productos.</p>"
                   f"<p><b>Canales:</b></p><ul>{canales_html}</ul>"
-                  "<p><b>Vigilo:</b> preventas del 30 aniversario en inglés o sin idioma indicado "
-                  "(cualquier tienda) y la "
+                  "<p><b>Vigilo:</b> stock y preventas del 30 aniversario en inglés o sin idioma "
+                  "indicado (cualquier tienda) y la "
                   f"Ultra Premium en cualquier tienda{' (solo en inglés)' if ULTRA_SOLO_INGLES else ''}.</p>"
                   "<p><b>Últimos mensajes que habrían pasado el filtro</b> (para que veas cómo filtra):</p>"
                   + ("".join(html_aviso(a) for a in recientes) or "<p>Ninguno en los mensajes recientes.</p>"))
